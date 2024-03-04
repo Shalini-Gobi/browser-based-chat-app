@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat Application</title>
+</head>
+<body>
+    <h1>Chat Application</h1>
+    <div id="messages"></div>
+    <form id="message-form">
+        <input type="text" id="username" placeholder="Your Name">
+        <input type="text" id="message" placeholder="Message">
+        <button type="submit">Send</button>
+    </form>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        function getMessages() {
+            $.get('/get_messages', function(messages) {
+                $('#messages').empty();
+                for (var i = 0; i < messages.length; i++) {
+                    $('#messages').append('<p><strong>' + messages[i]['username'] + '</strong>: ' + messages[i]['message'] + '</p>');
+                }
+            });
+        }
+
+        $(document).ready(function() {
+            getMessages();
+
+            $('#message-form').submit(function(event) {
+                event.preventDefault();
+                var username = $('#username').val();
+                var message = $('#message').val();
+
+                $.post('/send_message', {'username': username, 'message': message}, function(response) {
+                    getMessages();
+                    $('#message').val('');
+                });
+            });
+
+            setInterval(getMessages, 1000); // Refresh messages every second
+        });
+    </script>
+</body>
+</html>
